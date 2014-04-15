@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <netinet/in.h>
 #include <linux/netfilter.h>
+#include <libnfnetlink/libnfnetlink.h>
 #include <libnetfilter_queue/libnetfilter_queue.h>
 #include <string.h>
 #include <time.h>
@@ -13,6 +14,7 @@
 #include <linux/tcp.h>
 #include <linux/udp.h>
 #include <linux/icmp.h>
+
 #define MATCH 1//indicates port mach IP addr
 #define NMATCH 0//indicates port not match IP addr
 //user's,filter rule information
@@ -35,7 +37,7 @@ static int callback(struct nfq_q_handle * qh, struct nfgenmsg * nfmsg, struct nf
 
 int main(int argc, char **argv)
 {
-    char buf[600];//get message data buffer area from IP level, length > max IP_length(1512)
+    char buf[1600];//get message data buffer area from IP level, length > max IP_length(1512)
     int length;//save the length of the message data
     if(argc==1)
         enable_flag=0;//close firewall's function of message filtering
@@ -63,11 +65,19 @@ int main(int argc, char **argv)
         fprintf(stderr, "Error during nfq_create_queue()\n");
         exit(1);
     }
+    if(nfq_set_mode(qh,NFQNL_COPY_PACKET,0xffff)<0){
+        fprintf(stderr, "can't set packet_copy mode\n");
+        exit(1);
+    }
     //date structure transition
-    nh=nfq_nfnlh(h);
-    fd=nfnl_fd(nh);
+    // nh=nfq_nfnlh(h);
+    // fd=nfnl_fd(nh);
+    nh = nfq_nfnlh(h);
+    fd = nfnl_fd(nh);
     while(1){
+        printf("%s\n", "test" );
         length=recv(fd,buf,1600,0);//receive data package
+        printf("%s\n", "test" );
         nfq_handle_packet(h,buf,length);//function-->call the recalling function of nvq_create_queue()-->send package
     }
     nfq_destroy_queue(qh);//close queue processing
@@ -248,7 +258,8 @@ static int callback(struct nfq_q_handle * qh, struct nfgenmsg * nfmsg, struct nf
     int pdata_len;
     int dealmethod = NF_DROP;
     char srcstr[32],deststr[32];
-    ph = nfq_get_msg_pakcet_hdr(nfa);
+
+    ph = nfq_get_msg_packet_hdr(nfa);
     if(ph == NULL)
         return 1;
     id = ntohl(ph->packet_id);
