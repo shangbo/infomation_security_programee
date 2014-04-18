@@ -50,7 +50,8 @@
 
 ## 所需组件 ##
 * linux下chrome浏览器
-    sudo apt-get install google-chrome-stable
+    sudo apt-get install chromium-browser
+* 安装完成后，在teminal下面输入chromium-browser打开浏览器
 * chrome插件- vpn.s HTTP Proxy(去chrome应用商店里面去搜索)
 
 
