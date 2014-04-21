@@ -75,9 +75,7 @@ int main(int argc, char **argv)
     nh = nfq_nfnlh(h);
     fd = nfnl_fd(nh);
     while(1){
-        printf("%s\n", "test" );
         length=recv(fd,buf,1600,0);//receive data package
-        printf("%s\n", "test" );
         nfq_handle_packet(h,buf,length);//function-->call the recalling function of nvq_create_queue()-->send package
     }
     nfq_destroy_queue(qh);//close queue processing
@@ -258,14 +256,14 @@ static int callback(struct nfq_q_handle * qh, struct nfgenmsg * nfmsg, struct nf
     int pdata_len;
     int dealmethod = NF_DROP;
     char srcstr[32],deststr[32];
-
+    
     ph = nfq_get_msg_packet_hdr(nfa);
     if(ph == NULL)
         return 1;
     id = ntohl(ph->packet_id);
     if(enable_flag == 0)
         return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
-    pdata_len = nfq_get_payload(nfa, (char**)&data);
+    pdata_len = nfq_get_payload(nfa, (char**)&pdata);
     if(pdata != NULL)
         piphdr = (struct iphdr *) pdata;
     else
